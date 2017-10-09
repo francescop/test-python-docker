@@ -1,0 +1,59 @@
+{
+  "AWSEBDockerrunVersion": 2, 
+  "containerDefinitions": [
+  {
+    "name": "redis", 
+    "image": "redis:4-alpine", 
+    "hostname": "redis", 
+    "command": [
+      "redis-server"
+    ]
+    "memory": 512,
+    "essential": true
+  },
+  {
+    "name": "website", 
+    "image": "${DOCKER_IMAGE_REPO}/${DOCKER_IMAGE_NAME}:${TAG}", 
+    "hostname": "website", 
+    "links": [
+      "redis"
+    ],
+    "command": [
+      "flask run --host=0.0.0.0"
+    ],
+    "portMappings": [
+      {
+        "containerPort": 80, 
+        "hostPort": 5000
+      }
+    ], 
+    "memory": 512,
+    "essential": true,
+    "environment": [
+      {
+        "name": "REDIS_HOST",
+        "value": "redis"
+      }
+    ],
+  },
+  {
+    "name": "worker", 
+    "image": "${DOCKER_IMAGE_REPO}/${DOCKER_IMAGE_NAME}:${TAG}", 
+    "hostname": "worker", 
+    "links": [
+      "redis"
+    ],
+    "command": [
+      "python worker.py"
+    ],
+    "memory": 512,
+    "essential": true,
+    "environment": [
+      {
+        "name": "REDIS_HOST",
+        "value": "redis"
+      }
+    ]
+  }
+  ]
+}

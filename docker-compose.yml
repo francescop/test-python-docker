@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  redis:
+    image: 'redis:4-alpine'
+    command: redis-server #--requirepass devpassword
+    ports:
+      - '6379:6379'
+
+
+  website:
+    build: .
+    ports:
+      - '5000:5000'
+    environment:
+      - REDIS_HOST=redis
+    command: flask run --host=0.0.0.0
+
+  worker:
+    build: .
+    environment:
+      - REDIS_HOST=redis
+    command: python worker.py

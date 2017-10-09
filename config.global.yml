@@ -1,0 +1,7 @@
+branch-defaults:
+  default:
+    environment: testdocker-prod
+  staging:
+    environment: testdocker-staging
+deploy:
+  artifact: deploy.zip
