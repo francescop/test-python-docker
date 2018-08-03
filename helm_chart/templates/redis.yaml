@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "helm_chart.fullname" . }}-redis
+  labels:
+    app: {{ template "helm_chart.name" . }}-redis
+    chart: {{ template "helm_chart.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.redis.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "helm_chart.name" . }}-redis
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "helm_chart.name" . }}-redis
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-redis
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
+          command: ["redis-server"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "helm_chart.fullname" . }}-redis
+  labels:
+    app: {{ template "helm_chart.name" . }}-redis
+    chart: {{ template "helm_chart.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.redis.service.type }}
+  ports:
+    - port: {{ .Values.redis.service.port }}
+      targetPort: redis
+      protocol: TCP
+      name: redis
+  selector:
+    app: {{ template "helm_chart.name" . }}-redis
+    release: {{ .Release.Name }}

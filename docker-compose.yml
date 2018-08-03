@@ -7,7 +7,6 @@ services:
     ports:
       - '6379:6379'
 
-
   website:
     build: .
     ports:
